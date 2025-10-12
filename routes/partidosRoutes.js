@@ -22,10 +22,10 @@ router.get('/', getAllPartidos);
 router.get('/:id', getPartidoById);
 
 // Crear un nuevo partido
-router.post('/', upload.single('logo'), createPartido);
+router.post('/', upload.partido.single('logo'), createPartido);
 
 // Actualizar un partido existente
-router.put('/:id', upload.single('logo'), updatePartido);
+router.put('/:id', upload.partido.single('logo'), updatePartido);
 
 // Eliminar un partido
 router.delete('/:id', deletePartido);

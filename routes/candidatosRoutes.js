@@ -16,10 +16,10 @@ router.get('/', getAllCandidatos);
 router.get('/:id', getCandidatoById);
 
 // Crear un nuevo candidato
-router.post('/', upload.single('foto'), createCandidato);
+router.post('/', upload.candidato.single('foto'), createCandidato);
 
 // Actualizar un candidato existente
-router.put('/:id', upload.single('foto'), updateCandidato);
+router.put('/:id', upload.candidato.single('foto'), updateCandidato);
 
 // Eliminar un candidato
 router.delete('/:id', deleteCandidato);

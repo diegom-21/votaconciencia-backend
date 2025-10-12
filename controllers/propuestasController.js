@@ -1,5 +1,5 @@
 const db = require('../config/database');
-const openai = require('../config/openai');
+const { generarResumenIA } = require('../services/openaiService');
 
 // Obtener todas las propuestas con datos enriquecidos
 exports.getAllPropuestas = async (req, res) => {
@@ -28,8 +28,8 @@ exports.createPropuesta = async (req, res) => {
             [candidato_id]
         );
 
-        if (!candidato) {
-            return res.status(404).json({ error: 'Candidato no encontrado' });
+        if (!candidato || !candidato.plan_gobierno_completo) {
+            return res.status(404).json({ error: 'El candidato no tiene un plan de gobierno cargado.' });
         }
 
         // Paso B: Obtener el nombre del tema
@@ -42,19 +42,14 @@ exports.createPropuesta = async (req, res) => {
             return res.status(404).json({ error: 'Tema no encontrado' });
         }
 
-        // Paso C: Construir el prompt para OpenAI
-        const prompt = `Del siguiente plan de gobierno: ${candidato.plan_gobierno_completo}. Eres un analista político neutral. Genera un resumen conciso (máximo 150 palabras) sobre las propuestas específicas relacionadas con el tema de '${tema.nombre_tema}'. El título de la propuesta es '${titulo_propuesta}'.`;
+        console.log('Candidato encontrado:', candidato);
+        console.log('Tema encontrado:', tema);
+        console.log('Generando resumen con OpenAI...');
 
-        // Paso D: Llamar a la API de OpenAI
-        const response = await openai.createCompletion({
-            model: 'text-davinci-003',
-            prompt,
-            max_tokens: 150
-        });
+        // Paso C: Generar el resumen con OpenAI
+        const resumen_ia = await generarResumenIA(candidato.plan_gobierno_completo, tema.nombre_tema);
 
-        const resumen_ia = response.data.choices[0].text.trim();
-
-        // Paso E: Insertar la propuesta en la base de datos
+        // Paso D: Insertar la propuesta en la base de datos
         await db.query(
             'INSERT INTO propuestas (candidato_id, tema_id, titulo_propuesta, resumen_ia) VALUES (?, ?, ?, ?)',
             [candidato_id, tema_id, titulo_propuesta, resumen_ia]
@@ -62,6 +57,7 @@ exports.createPropuesta = async (req, res) => {
 
         res.status(201).json({ message: 'Propuesta creada exitosamente' });
     } catch (error) {
+        console.error('Error al crear la propuesta:', error);
         res.status(500).json({ error: 'Error al crear la propuesta' });
     }
 };
@@ -72,9 +68,29 @@ exports.updatePropuesta = async (req, res) => {
     const { titulo_propuesta, resumen_ia } = req.body;
 
     try {
+        // Construir la consulta dinámicamente según los campos enviados
+        const fields = [];
+        const values = [];
+
+        if (titulo_propuesta) {
+            fields.push('titulo_propuesta = ?');
+            values.push(titulo_propuesta);
+        }
+
+        if (resumen_ia) {
+            fields.push('resumen_ia = ?');
+            values.push(resumen_ia);
+        }
+
+        if (fields.length === 0) {
+            return res.status(400).json({ error: 'No se enviaron campos para actualizar' });
+        }
+
+        values.push(id); // Agregar el ID al final para la cláusula WHERE
+
         const [result] = await db.query(
-            'UPDATE propuestas SET titulo_propuesta = ?, resumen_ia = ? WHERE propuesta_id = ?',
-            [titulo_propuesta, resumen_ia, id]
+            `UPDATE propuestas SET ${fields.join(', ')} WHERE propuesta_id = ?`,
+            values
         );
 
         if (result.affectedRows === 0) {
@@ -83,6 +99,7 @@ exports.updatePropuesta = async (req, res) => {
 
         res.json({ message: 'Propuesta actualizada exitosamente' });
     } catch (error) {
+        console.error('Error al actualizar la propuesta:', error);
         res.status(500).json({ error: 'Error al actualizar la propuesta' });
     }
 };

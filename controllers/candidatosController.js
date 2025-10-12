@@ -40,7 +40,7 @@ const getCandidatoById = async (req, res) => {
 // Crear un nuevo candidato
 const createCandidato = async (req, res) => {
     try {
-        const { nombre, apellido, biografia, lugar_nacimiento, partido_id } = req.body;
+        const { nombre, apellido, biografia, lugar_nacimiento, partido_id, plan_gobierno_completo } = req.body;
 
         // Construir la URL de la foto si se subió un archivo
         let foto_url = null;
@@ -54,8 +54,7 @@ const createCandidato = async (req, res) => {
         }
 
         const [result] = await pool.query(
-            'INSERT INTO candidatos (nombre, apellido, foto_url, biografia, lugar_nacimiento, partido_id, esta_activo) VALUES (?, ?, ?, ?, ?, ?, 1)',
-            [nombre, apellido, foto_url, biografia, lugar_nacimiento, partido_id]
+            'INSERT INTO candidatos (nombre, apellido, foto_url, biografia, lugar_nacimiento, partido_id, esta_activo, plan_gobierno_completo) VALUES (?, ?, ?, ?, ?, ?, 1, ?)',            [nombre, apellido, foto_url, biografia, lugar_nacimiento, partido_id, plan_gobierno_completo]
         );
 
         const [nuevoCandidato] = await pool.query('SELECT * FROM candidatos WHERE candidato_id = ?', [result.insertId]);
@@ -70,7 +69,7 @@ const createCandidato = async (req, res) => {
 const updateCandidato = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, apellido, biografia, lugar_nacimiento, partido_id, esta_activo } = req.body;
+        const { nombre, apellido, biografia, lugar_nacimiento, partido_id, esta_activo, plan_gobierno_completo } = req.body;
         
         // Si hay un nuevo archivo, procesar la foto
         let foto_url;
@@ -89,8 +88,8 @@ const updateCandidato = async (req, res) => {
         }
         
         // Construir la consulta SQL dinámicamente
-        let sql = 'UPDATE candidatos SET nombre = ?, apellido = ?, biografia = ?, lugar_nacimiento = ?, partido_id = ?, esta_activo = ?';
-        let params = [nombre, apellido, biografia, lugar_nacimiento, partido_id, parseInt(esta_activo)];
+        let sql = 'UPDATE candidatos SET nombre = ?, apellido = ?, biografia = ?, lugar_nacimiento = ?, partido_id = ?, esta_activo = ?, plan_gobierno_completo = ?';
+        let params = [nombre, apellido, biografia, lugar_nacimiento, partido_id, parseInt(esta_activo), plan_gobierno_completo];
         
         if (req.file) {
             sql += ', foto_url = ?';

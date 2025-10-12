@@ -8,6 +8,10 @@ const partidosRoutes = require('./routes/partidosRoutes');
 const temasRoutes = require('./routes/temasRoutes');
 const historialRoutes = require('./routes/historialRoutes');
 const propuestasRoutes = require('./routes/propuestasRoutes');
+const cronogramaRoutes = require('./routes/cronogramaRoutes');
+const triviasRoutes = require('./routes/triviasRoutes');
+const recursosRoutes = require('./routes/recursosRoutes');
+const administradoresRoutes = require('./routes/administradoresRoutes');
 
 const app = express();
 
@@ -38,6 +42,10 @@ app.use('/api/partidos', partidosRoutes);
 app.use('/api/temas', temasRoutes);
 app.use('/api/historial', historialRoutes);
 app.use('/api/propuestas', propuestasRoutes);
+app.use('/api/cronograma', cronogramaRoutes);
+app.use('/api/trivias', triviasRoutes);
+app.use('/api/recursos', recursosRoutes);
+app.use('/api/administradores', administradoresRoutes);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
