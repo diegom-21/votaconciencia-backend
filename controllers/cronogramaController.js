@@ -10,6 +10,31 @@ exports.getAllEventos = async (req, res) => {
     }
 };
 
+// Obtener eventos ordenados por proximidad a la fecha actual
+exports.getEventosOrdenados = async (req, res) => {
+    try {
+        const eventos = await cronogramaService.getEventosOrdenados();
+        res.json({ success: true, data: eventos });
+    } catch (error) {
+        console.error('Error al obtener los eventos ordenados:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener los eventos ordenados' });
+    }
+};
+
+// Obtener el próximo evento más cercano
+exports.getProximoEvento = async (req, res) => {
+    try {
+        const evento = await cronogramaService.getProximoEvento();
+        if (!evento) {
+            return res.status(404).json({ success: false, message: 'No hay eventos disponibles' });
+        }
+        res.json({ success: true, data: evento });
+    } catch (error) {
+        console.error('Error al obtener el próximo evento:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener el próximo evento' });
+    }
+};
+
 exports.getEventoById = async (req, res) => {
     const { id } = req.params;
     try {

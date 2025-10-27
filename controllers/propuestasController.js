@@ -1,18 +1,47 @@
 const db = require('../config/database');
 const { generarResumenIA } = require('../services/openaiService');
 
-// Obtener todas las propuestas con datos enriquecidos
+// Obtener propuestas con filtros opcionales por candidato y/o tema
 exports.getAllPropuestas = async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT p.propuesta_id, p.titulo_propuesta, p.resumen_ia, 
+        const { candidato_id, tema_id } = req.query;
+        
+        let query = `
+            SELECT p.propuesta_id, p.candidato_id, p.tema_id, p.titulo_propuesta, p.resumen_ia, 
                    c.nombre AS nombre_candidato, t.nombre_tema
             FROM propuestas p
             JOIN candidatos c ON p.candidato_id = c.candidato_id
             JOIN temas t ON p.tema_id = t.tema_id
-        `);
+        `;
+        
+        const conditions = [];
+        const params = [];
+        
+        if (candidato_id) {
+            conditions.push('p.candidato_id = ?');
+            params.push(candidato_id);
+        }
+        
+        if (tema_id) {
+            conditions.push('p.tema_id = ?');
+            params.push(tema_id);
+        }
+        
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+        
+        query += ' ORDER BY p.propuesta_id DESC';
+        
+        console.log('🔍 Consulta de propuestas:', query);
+        console.log('📊 Parámetros:', { candidato_id, tema_id });
+        
+        const [rows] = await db.query(query, params);
+        
+        console.log('📋 Propuestas encontradas:', rows.length);
         res.json(rows);
     } catch (error) {
+        console.error('Error al obtener propuestas:', error);
         res.status(500).json({ error: 'Error al obtener las propuestas' });
     }
 };

@@ -1,8 +1,42 @@
 const db = require('../config/database');
 
 exports.getAllEventos = async () => {
-    const [rows] = await db.query('SELECT * FROM eventos_cronograma');
+    const [rows] = await db.query('SELECT * FROM eventos_cronograma ORDER BY fecha_evento ASC');
     return rows;
+};
+
+// Obtener eventos ordenados por proximidad a la fecha actual
+exports.getEventosOrdenados = async () => {
+    const [rows] = await db.query(`
+        SELECT *, 
+        ABS(DATEDIFF(fecha_evento, CURDATE())) as dias_diferencia,
+        CASE 
+            WHEN fecha_evento >= CURDATE() THEN 0 
+            ELSE 1 
+        END as es_pasado
+        FROM eventos_cronograma 
+        WHERE esta_publicado = 1
+        ORDER BY es_pasado ASC, dias_diferencia ASC, fecha_evento ASC
+    `);
+    return rows;
+};
+
+// Obtener el próximo evento más cercano
+exports.getProximoEvento = async () => {
+    const [rows] = await db.query(`
+        SELECT *, 
+        ABS(DATEDIFF(fecha_evento, CURDATE())) as dias_diferencia
+        FROM eventos_cronograma 
+        WHERE esta_publicado = 1
+        ORDER BY 
+            CASE 
+                WHEN fecha_evento >= CURDATE() THEN 0 
+                ELSE 1 
+            END ASC,
+            ABS(DATEDIFF(fecha_evento, CURDATE())) ASC
+        LIMIT 1
+    `);
+    return rows[0];
 };
 
 exports.getEventoById = async (id) => {

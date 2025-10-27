@@ -5,9 +5,21 @@ const path = require('path');
 exports.getAllRecursos = async (req, res) => {
     try {
         const recursos = await recursosService.getAllRecursos();
+        console.log('🎓 Recursos obtenidos del servicio:', recursos);
+        
+        // Debug de cada recurso
+        recursos.forEach((recurso, index) => {
+            console.log(`🎓 Recurso ${index + 1}:`, {
+                id: recurso.recurso_id,
+                titulo: recurso.titulo,
+                imagen_url: recurso.imagen_url,
+                esta_publicado: recurso.esta_publicado
+            });
+        });
+        
         res.json(recursos);
     } catch (error) {
-        console.error('Error al obtener recursos:', error);
+        console.error('❌ Error al obtener recursos:', error);
         res.status(500).json({ error: 'Error al obtener los recursos educativos' });
     }
 };

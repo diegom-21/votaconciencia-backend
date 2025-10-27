@@ -1,6 +1,9 @@
 # Dependencias
 node_modules/
 
+# Archivos subidos por usuarios
+public/uploads/
+public/uploads/images/
 
 # Configuración local
 .env

@@ -12,11 +12,24 @@ const cronogramaRoutes = require('./routes/cronogramaRoutes');
 const triviasRoutes = require('./routes/triviasRoutes');
 const recursosRoutes = require('./routes/recursosRoutes');
 const administradoresRoutes = require('./routes/administradoresRoutes');
+const openaiRoutes = require('./routes/openaiRoutes');
 
 const app = express();
 
 // Middlewares
-app.use(cors());
+const corsOptions = {
+    origin: [
+        'http://localhost:5173', // Admin frontend (votaconcienciafront)
+        'http://localhost:5174', // Public frontend (votaconcienciapublic)
+        'http://localhost:3001', // Posible puerto alternativo
+        'http://localhost:4173', // Vite preview
+        'http://localhost:4174'  // Vite preview alternativo
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Servir archivos estáticos
@@ -46,6 +59,7 @@ app.use('/api/cronograma', cronogramaRoutes);
 app.use('/api/trivias', triviasRoutes);
 app.use('/api/recursos', recursosRoutes);
 app.use('/api/administradores', administradoresRoutes);
+app.use('/api/openai', openaiRoutes);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;

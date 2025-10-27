@@ -5,6 +5,12 @@ const cronogramaController = require('../controllers/cronogramaController');
 // Listar todos los eventos
 router.get('/', cronogramaController.getAllEventos);
 
+// Obtener eventos ordenados por proximidad a la fecha actual
+router.get('/ordenados', cronogramaController.getEventosOrdenados);
+
+// Obtener el próximo evento más cercano
+router.get('/proximo', cronogramaController.getProximoEvento);
+
 // Obtener un evento específico
 router.get('/:id', cronogramaController.getEventoById);
 

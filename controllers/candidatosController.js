@@ -2,7 +2,7 @@ const pool = require('../config/database');
 const fs = require('fs');
 const path = require('path');
 
-// Obtener todos los candidatos con información de sus partidos
+// Obtener todos los candidatos con información de sus partidos (excluyendo plan_gobierno_completo)
 const getAllCandidatos = async (req, res) => {
     try {
         const [candidatos] = await pool.query(`
@@ -20,11 +20,27 @@ const getAllCandidatos = async (req, res) => {
     }
 };
 
-// Obtener un candidato por ID
+// Obtener un candidato por ID con información completa del partido (incluyendo plan_gobierno_completo)
 const getCandidatoById = async (req, res) => {
     try {
         const { id } = req.params;
-        const [candidatos] = await pool.query('SELECT * FROM candidatos WHERE candidato_id = ?', [id]);
+        const [candidatos] = await pool.query(`
+            SELECT 
+                c.candidato_id,
+                c.nombre,
+                c.apellido,
+                c.foto_url,
+                c.biografia,
+                c.lugar_nacimiento,
+                c.partido_id,
+                c.esta_activo,
+                c.plan_gobierno_completo,
+                p.nombre AS partido_nombre,
+                p.logo_url AS partido_logo
+            FROM candidatos c
+            LEFT JOIN partidos p ON c.partido_id = p.partido_id
+            WHERE c.candidato_id = ?
+        `, [id]);
         
         if (candidatos.length === 0) {
             return res.status(404).json({ message: "Candidato no encontrado" });

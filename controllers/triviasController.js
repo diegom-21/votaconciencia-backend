@@ -6,9 +6,22 @@ const path = require('path');
 exports.getAllTemas = async (req, res) => {
     try {
         const temas = await triviasService.getAllTemas();
+        console.log('🧠 Temas de trivia obtenidos del servicio:', temas);
+        
+        // Debug de cada tema
+        temas.forEach((tema, index) => {
+            console.log(`🧠 Tema ${index + 1}:`, {
+                id: tema.tema_trivia_id,
+                nombre: tema.nombre_tema,
+                imagen_url: tema.imagen_url,
+                descripcion: tema.descripcion,
+                esta_activo: tema.esta_activo
+            });
+        });
+        
         res.json(temas);
     } catch (error) {
-        console.error('Error al obtener temas:', error);
+        console.error('❌ Error al obtener temas:', error);
         res.status(500).json({ error: 'Error al obtener los temas de trivia' });
     }
 };

@@ -8,16 +8,12 @@ const {
     deleteTema
 } = require('../controllers/temasController');
 
-// Obtener todos los temas
-router.get('/', auth, getAllTemas);
+// Ruta pública (sin autenticación) - para la web pública
+router.get('/', getAllTemas);
 
-// Crear un nuevo tema
+// Rutas protegidas (requieren autenticación) - para el panel admin
 router.post('/', auth, createTema);
-
-// Actualizar un tema existente
 router.put('/:tema_id', auth, updateTema);
-
-// Eliminar un tema
 router.delete('/:tema_id', auth, deleteTema);
 
 module.exports = router;
