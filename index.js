@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const pool = require('./config/database');
+const { initializeDatabase } = require('./scripts/initDatabase');
 const candidatosRoutes = require('./routes/candidatosRoutes');
 const adminsRoutes = require('./routes/adminsRoutes');
 const partidosRoutes = require('./routes/partidosRoutes');
@@ -63,6 +64,32 @@ app.use('/api/openai', openaiRoutes);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+
+// Función para iniciar el servidor con inicialización de BD
+async function startServer() {
+    try {
+        // Inicializar base de datos antes de iniciar el servidor
+        console.log('🚀 Iniciando servidor VotaConCiencia...\n');
+        
+        const dbInitialized = await initializeDatabase();
+        
+        if (!dbInitialized) {
+            console.error('⚠️  Advertencia: La base de datos no se inicializó correctamente.');
+            console.error('   El servidor continuará, pero puede haber errores.\n');
+        }
+        
+        // Iniciar servidor Express
+        app.listen(PORT, () => {
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        });
+        
+    } catch (error) {
+        console.error('❌ Error fatal al iniciar el servidor:', error);
+        process.exit(1);
+    }
+}
+
+// Iniciar el servidor
+startServer();
