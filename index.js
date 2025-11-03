@@ -19,13 +19,7 @@ const app = express();
 
 // Middlewares
 const corsOptions = {
-    origin: [
-        'http://localhost:5173', // Admin frontend (votaconcienciafront)
-        'http://localhost:5174', // Public frontend (votaconcienciapublic)
-        'http://localhost:3001', // Posible puerto alternativo
-        'http://localhost:4173', // Vite preview
-        'http://localhost:4174'  // Vite preview alternativo
-    ],
+    origin: '*', // Permitir todos los orígenes
     credentials: true,
     optionsSuccessStatus: 200
 };
